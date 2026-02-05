@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Roleta do Consórcio, Sorteio de Prêmios</title>
+  <style>
+    :root{
+      --blue:#002E6A;
+      --red:#E1062A;
+      --bg:#071427;
+      --card:#0b2142;
+      --text:#eaf2ff;
+      --muted:#a9c0e6;
+      --gold:#ffd36a;
+      --ok:#1fd17a;
+      --shadow: 0 18px 55px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(0,46,106,.55), transparent 55%),
+        radial-gradient(900px 650px at 85% 25%, rgba(225,6,42,.35), transparent 60%),
+        radial-gradient(1000px 700px at 50% 85%, rgba(255,211,106,.10), transparent 60%),
+        linear-gradient(180deg, #050c18, #071427 55%, #040a14);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding: 14px 12px 22px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .badge{
+      width:46px; height:46px;
+      border-radius: 14px;
+      background: conic-gradient(from 30deg, var(--gold), var(--red), var(--blue), var(--gold));
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .badge::after{
+      content:"💰";
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-size:22px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.2px;
+      line-height:1.1;
+    }
+    .sub{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      background: rgba(10, 26, 54, .55);
+      box-shadow: 0 8px 28px rgba(0,0,0,.25);
+    }
+    .pill span{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 18px;
+      align-items:start;
+    }
+
+    .card{
+      background: rgba(11,33,66,.65);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card .head{
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(0,46,106,.55), rgba(225,6,42,.20));
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .card .head strong{
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .card .head small{
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .card .body{
+      padding: 14px 16px 16px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .input{
+      flex: 1 1 260px;
+      position:relative;
+    }
+    input[type="text"]{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      outline:none;
+      background: rgba(5, 14, 30, .70);
+      color: var(--text);
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18) inset;
+    }
+    input[type="text"]::placeholder{ color: rgba(234,242,255,.55); }
+
+    .btn{
+      border: 0;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      letter-spacing:.2px;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--blue), #01408f);
+      box-shadow: 0 14px 36px rgba(0,0,0,.35);
+      transition: transform .15s ease, filter .15s ease, opacity .15s ease;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn:hover{ filter: brightness(1.06); }
+
+    .btn.red{
+      background: linear-gradient(135deg, var(--red), #ff2c4f);
+    }
+    .btn.ghost{
+      background: rgba(5,14,30,.55);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+      font-weight:700;
+    }
+    .btn.ok{
+      background: linear-gradient(135deg, #17b566, var(--ok));
+    }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter:saturate(.75);
+    }
+
+    .names{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .list{
+      max-height: 320px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(5, 14, 30, .55);
+    }
+    .item .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .chip{
+      width:34px; height:34px;
+      border-radius: 12px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+    .item b{
+      font-size: 13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 260px;
+    }
+    .item small{
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .iconbtn{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .iconbtn:hover{ filter: brightness(1.07); }
+    .iconbtn:active{ transform: translateY(1px); }
+
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height:1.35;
+    }
+
+    /* Wheel panel */
+    .wheelGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .wheelCard{
+      padding: 18px;
+      display:grid;
+      grid-template-columns: 1fr 250px;
+      gap: 16px;
+      align-items:center;
+      position:relative;
+    }
+
+    .stage{
+      display:grid;
+      place-items:center;
+      padding: 10px 0;
+      position:relative;
+    }
+
+    canvas{
+      width: min(520px, 92vw);
+      height: min(520px, 92vw);
+      max-width:520px;
+      max-height:520px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.08), transparent 55%),
+                  radial-gradient(circle at 70% 70%, rgba(255,255,255,.06), transparent 55%);
+      box-shadow: 0 26px 85px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .pointer{
+      width:0; height:0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 28px solid var(--gold);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
+      position:absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+    .pointer::after{
+      content:"🍀";
+      position:absolute;
+      top:-36px;
+      left:-14px;
+      font-size: 18px;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.45));
+    }
+
+    .controls{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(5, 14, 30, .50);
+    }
+    .controls .big{
+      padding: 14px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+    }
+    .stat{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(11,33,66,.40);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .stat b{ color: var(--text); font-size: 12px; }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(11,33,66,.30);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .toggle input{ width:18px; height:18px; }
+
+    /* Winner modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 999;
+      padding: 18px;
+    }
+    .overlay.show{ display:flex; }
+
+    .modal{
+      width: min(680px, 92vw);
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 30px 120px rgba(0,0,0,.65);
+      background:
+        radial-gradient(900px 400px at 10% 0%, rgba(0,46,106,.55), transparent 55%),
+        radial-gradient(900px 400px at 90% 0%, rgba(225,6,42,.35), transparent 55%),
+        linear-gradient(180deg, rgba(11,33,66,.92), rgba(5,14,30,.95));
+      position:relative;
+    }
+    .modalTop{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .modalTop .title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .spark{
+      width:42px; height:42px;
+      border-radius: 16px;
+      display:grid;
+      place-items:center;
+      background: rgba(255,211,106,.16);
+      border: 1px solid rgba(255,211,106,.24);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      font-size: 20px;
+    }
+    .modalTop h2{
+      margin:0;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .modalTop p{
+      margin:2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height:1.35;
+    }
+    .close{
+      background: rgba(5,14,30,.35);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      transition: transform .15s ease, filter .15s ease;
+      font-weight:700;
+    }
+    .close:hover{ filter: brightness(1.07); }
+    .close:active{ transform: translateY(1px); }
+
+    .modalBody{
+      padding: 18px;
+      display:grid;
+      gap: 12px;
+      text-align:center;
+    }
+    .winner{
+      font-size: clamp(26px, 4.6vw, 44px);
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin: 6px 0 0;
+      text-shadow: 0 12px 35px rgba(0,0,0,.45);
+    }
+    .prizeLine{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      justify-content:center;
+      align-items:center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .tag{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(5,14,30,.40);
+      color: var(--text);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .modalActions{
+      display:flex;
+      gap: 10px;
+      justify-content:center;
+      padding: 0 18px 18px;
+      flex-wrap:wrap;
+    }
+
+    /* Confetti canvas in modal */
+    #confetti{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      opacity:.95;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+      .wheelCard{ grid-template-columns: 1fr; }
+      .controls{ order:2; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="badge" aria-hidden="true"></div>
+        <div>
+          <h1>Roleta do Consórcio, Sorteio de Prêmios</h1>
+          <p class="sub">Adicione nomes, gire a roleta e comemore o vencedor com muita sorte, dinheiro e festa.</p>
+        </div>
+      </div>
+
+      <div class="pill" title="Dica: adicione nomes com Enter e gire quando estiver pronto">
+        <span>🍀 Boa sorte</span>
+        <span>💰 Prêmios</span>
+        <span>🎉 Festa</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Left: Add names -->
+      <section class="card" aria-label="Cadastro de nomes">
+        <div class="head">
+          <div>
+            <strong>Participantes</strong>
+            <div><small>Insira, veja a lista, remova, e a roleta atualiza na hora.</small></div>
+          </div>
+          <small id="countLabel">0 nomes</small>
+        </div>
+
+        <div class="body">
+          <div class="row">
+            <div class="input">
+              <input id="nameInput" type="text" placeholder="Digite o nome e pressione Enter" autocomplete="off" />
+            </div>
+            <button class="btn ok" id="addBtn" type="button">Adicionar 💸</button>
+          </div>
+
+          <div class="names">
+            <div class="row">
+              <button class="btn ghost" id="importDemoBtn" type="button" title="Cole uma lista e adicionar de uma vez">Adicionar em lote</button>
+              <button class="btn red" id="clearBtn" type="button">Limpar tudo</button>
+            </div>
+
+            <div class="list" id="list"></div>
+
+            <div class="hint">
+              Dicas: você pode colar vários nomes no botão “Adicionar em lote”, um por linha.
+              Se marcar “Remover vencedor”, o nome sorteado sai da roleta automaticamente.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Wheel -->
+      <section class="card wheelCard" aria-label="Roleta">
+        <div class="stage">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="900" height="900" aria-label="Roleta de sorteio"></canvas>
+        </div>
+
+        <div class="controls">
+          <button class="btn big" id="spinBtn" type="button">GIRAR A ROLETA 🎰</button>
+
+          <div class="stat">
+            <span>Participantes</span>
+            <b id="statCount">0</b>
+          </div>
+          <div class="stat">
+            <span>Último vencedor</span>
+            <b id="lastWinner">Nenhum</b>
+          </div>
+
+          <label class="toggle">
+            <span>Remover vencedor após sorteio</span>
+            <input id="removeWinnerToggle" type="checkbox" checked />
+          </label>
+
+          <label class="toggle">
+            <span>Som do sorteio</span>
+            <input id="soundToggle" type="checkbox" checked />
+          </label>
+
+          <button class="btn ghost" id="shuffleBtn" type="button" title="Embaralhar a ordem dos nomes na roleta">Embaralhar nomes 🔀</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Winner popup -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Vencedor do sorteio">
+    <div class="modal">
+      <canvas id="confetti"></canvas>
+
+      <div class="modalTop">
+        <div class="title">
+          <div class="spark" aria-hidden="true">🎉</div>
+          <div>
+            <h2>Temos um vencedor!</h2>
+            <p>Roleta do Consórcio, sorteio concluído com muita sorte e prosperidade.</p>
+          </div>
+        </div>
+        <button class="close" id="closeModal" type="button">Fechar</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="prizeLine">
+          <span class="tag">🍀 Sorte Grande</span>
+          <span class="tag">💰 Dinheiro na mão</span>
+          <span class="tag">🏆 Prêmio do Consórcio</span>
+        </div>
+        <div class="winner" id="winnerName">Fulano</div>
+        <div class="prizeLine" id="winnerMeta">Parabéns, você foi sorteado(a)!</div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn ok" id="spinAgainBtn" type="button">Sortear novamente 🎯</button>
+        <button class="btn ghost" id="copyBtn" type="button">Copiar nome 📋</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Utilities =====
+    const $ = (sel) => document.querySelector(sel);
+    const wheelCanvas = $("#wheel");
+    const ctx = wheelCanvas.getContext("2d");
+
+    const overlay = $("#overlay");
+    const winnerNameEl = $("#winnerName");
+    const winnerMetaEl = $("#winnerMeta");
+
+    const listEl = $("#list");
+    const nameInput = $("#nameInput");
+    const addBtn = $("#addBtn");
+    const clearBtn = $("#clearBtn");
+    const countLabel = $("#countLabel");
+    const statCount = $("#statCount");
+    const lastWinnerEl = $("#lastWinner");
+    const spinBtn = $("#spinBtn");
+    const shuffleBtn = $("#shuffleBtn");
+    const removeWinnerToggle = $("#removeWinnerToggle");
+    const soundToggle = $("#soundToggle");
+
+    const closeModalBtn = $("#closeModal");
+    const spinAgainBtn = $("#spinAgainBtn");
+    const copyBtn = $("#copyBtn");
+    const importDemoBtn = $("#importDemoBtn");
+
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+    function normalizeName(s){
+      return (s || "").trim().replace(/\s+/g, " ");
+    }
+
+    function pickEmoji(i){
+      const em = ["💰","🍀","💵","🎁","🧿","⭐","💸","🏆"];
+      return em[i % em.length];
+    }
+
+    // ===== Data =====
+    let names = [];
+    let lastWinner = "Nenhum";
+
+    // ===== Wheel state =====
+    let angle = 0;              // radians
+    let spinning = false;
+    let spinStart = 0;
+    let spinDuration = 0;
+    let startAngle = 0;
+    let targetAngle = 0;
+
+    // ===== Sound (simple, no external files) =====
+    let audioCtx = null;
+    function beep(freq, durMs, type="sine", gain=0.05){
+      if(!soundToggle.checked) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.value = gain;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start();
+        o.stop(audioCtx.currentTime + durMs/1000);
+      }catch(e){ /* ignore */ }
+    }
+
+    // ===== Render list =====
+    function renderList(){
+      listEl.innerHTML = "";
+      names.forEach((n, idx) => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `
+          <div class="left">
+            <div class="chip" aria-hidden="true">${pickEmoji(idx)}</div>
+            <div style="min-width:0">
+              <b title="${n}">${n}</b><br/>
+              <small>#${String(idx+1).padStart(2,"0")}</small>
+            </div>
+          </div>
+          <div class="right">
+            <button class="iconbtn" type="button" title="Remover">Remover</button>
+          </div>
+        `;
+        row.querySelector("button").addEventListener("click", () => {
+          if(spinning) return;
+          names.splice(idx, 1);
+          syncUI();
+          drawWheel();
+        });
+        listEl.appendChild(row);
+      });
+
+      const c = names.length;
+      countLabel.textContent = `${c} ${c === 1 ? "nome" : "nomes"}`;
+      statCount.textContent = String(c);
+      spinBtn.disabled = c < 2 || spinning;
+    }
+
+    // ===== Wheel drawing =====
+    function resizeCanvasForHiDPI(canvas){
+      const cssW = canvas.clientWidth;
+      const cssH = canvas.clientHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      return { dpr };
+    }
+
+    function drawWheel(){
+      const { dpr } = resizeCanvasForHiDPI(wheelCanvas);
+      const w = wheelCanvas.width, h = wheelCanvas.height;
+      const cx = w/2, cy = h/2;
+      const r = Math.min(w, h) * 0.46;
+
+      ctx.clearRect(0,0,w,h);
+
+      // Background glow ring
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.beginPath();
+      ctx.arc(0,0,r*1.06,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,211,106,.22)";
+      ctx.lineWidth = r*0.08;
+      ctx.shadowColor = "rgba(255,211,106,.28)";
+      ctx.shadowBlur = r*0.18;
+      ctx.stroke();
+      ctx.restore();
+
+      const n = names.length;
+      if(n === 0){
+        // Empty state
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.fillStyle = "rgba(255,255,255,.08)";
+        ctx.beginPath();
+        ctx.arc(0,0,r,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(234,242,255,.85)";
+        ctx.font = `${Math.round(r*0.11)}px system-ui`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Adicione nomes", 0, -10);
+        ctx.fillStyle = "rgba(169,192,230,.9)";
+        ctx.font = `${Math.round(r*0.06)}px system-ui`;
+        ctx.fillText("para aparecer na roleta", 0, 26);
+
+        // cute icons
+        ctx.font = `${Math.round(r*0.10)}px system-ui`;
+        ctx.fillText("💰  🍀  🎉", 0, r*0.22);
+        ctx.restore();
+        return;
+      }
+
+      const slice = (Math.PI * 2) / n;
+
+      // Outer shadow
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.shadowColor = "rgba(0,0,0,.55)";
+      ctx.shadowBlur = r*0.18;
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.fillStyle = "rgba(255,255,255,.03)";
+      ctx.fill();
+      ctx.restore();
+
+      // Slices
+      for(let i=0;i<n;i++){
+        const a0 = angle + i * slice;
+        const a1 = a0 + slice;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Alternate colors blue/red, with subtle variance
+        const isBlue = (i % 2 === 0);
+        const base = isBlue ? [0,46,106] : [225,6,42];
+        const alpha = 0.92;
+
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,r,a0,a1);
+        ctx.closePath();
+
+        // Gradient within slice
+        const grad = ctx.createRadialGradient(0,0,r*0.12, 0,0,r);
+        grad.addColorStop(0, `rgba(${base[0]},${base[1]},${base[2]},${alpha})`);
+        grad.addColorStop(1, `rgba(${base[0]},${base[1]},${base[2]},${alpha*0.75})`);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Divider
+        ctx.strokeStyle = "rgba(255,255,255,.16)";
+        ctx.lineWidth = Math.max(1, r*0.006);
+        ctx.stroke();
+
+        // Text
+        const label = names[i];
+        const mid = (a0 + a1)/2;
+
+        ctx.rotate(mid);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        // Fit font size based on slice count
+        const fontSize = clamp(r * (n <= 8 ? 0.09 : n <= 14 ? 0.072 : 0.055), 12*dpr, 42*dpr);
+        ctx.font = `800 ${Math.round(fontSize)}px system-ui`;
+        ctx.fillStyle = "rgba(255,255,255,.95)";
+        ctx.shadowColor = "rgba(0,0,0,.35)";
+        ctx.shadowBlur = r*0.03;
+
+        // Truncate long names
+        const maxChars = n <= 10 ? 20 : 16;
+        const show = label.length > maxChars ? label.slice(0, maxChars-1) + "…" : label;
+
+        ctx.fillText(show, r*0.94, 0);
+
+        // Small emoji marker
+        ctx.shadowBlur = 0;
+        ctx.font = `900 ${Math.round(fontSize*0.92)}px system-ui`;
+        ctx.fillText(pickEmoji(i), r*0.72, 0);
+
+        ctx.restore();
+      }
+
+      // Center hub
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.beginPath();
+      ctx.arc(0,0,r*0.22,0,Math.PI*2);
+      ctx.fillStyle = "rgba(5,14,30,.70)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,211,106,.35)";
+      ctx.lineWidth = r*0.018;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255,211,106,.95)";
+      ctx.font = `900 ${Math.round(r*0.08)}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("GIRAR", 0, -2);
+
+      ctx.fillStyle = "rgba(234,242,255,.80)";
+      ctx.font = `800 ${Math.round(r*0.055)}px system-ui`;
+      ctx.fillText("🎰", 0, r*0.11);
+
+      ctx.restore();
+    }
+
+    // ===== Winner calculation =====
+    // Pointer is at top, so pick the slice at angle that maps to -90 degrees.
+    function getWinnerIndex(){
+      const n = names.length;
+      if(n === 0) return -1;
+      const slice = (Math.PI * 2) / n;
+
+      // Convert current angle so that 0 points to the right, pointer is at top (-PI/2)
+      const pointerAngle = (-Math.PI/2);
+      let a = (pointerAngle - angle) % (Math.PI*2);
+      if(a < 0) a += Math.PI*2;
+
+      const idx = Math.floor(a / slice) % n;
+      return idx;
+    }
+
+    // ===== Spin animation =====
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+    function spin(){
+      if(spinning) return;
+      if(names.length < 2) return;
+
+      spinning = true;
+      spinBtn.disabled = true;
+
+      // Random spins and final offset
+      const extraSpins = 6 + Math.random() * 5; // 6..11
+      const randomOffset = Math.random() * Math.PI * 2;
+      startAngle = angle;
+      targetAngle = angle + extraSpins * Math.PI * 2 + randomOffset;
+
+      spinStart = performance.now();
+      spinDuration = 3600 + Math.random() * 1200; // 3.6s..4.8s
+
+      // Start sound
+      beep(220, 120, "sawtooth", 0.03);
+      requestAnimationFrame(tick);
+    }
+
+    let lastTickSound = 0;
+    function tick(now){
+      const t = clamp((now - spinStart) / spinDuration, 0, 1);
+      const e = easeOutCubic(t);
+      angle = startAngle + (targetAngle - startAngle) * e;
+
+      // "Tick" sound near the end for excitement
+      if(soundToggle.checked && now - lastTickSound > (t < 0.75 ? 220 : t < 0.9 ? 140 : 95)){
+        lastTickSound = now;
+        beep(500 + Math.random()*120, 35, "square", 0.015);
+      }
+
+      drawWheel();
+
+      if(t < 1){
+        requestAnimationFrame(tick);
+      }else{
+        spinning = false;
+        spinBtn.disabled = names.length < 2;
+        lastTickSound = 0;
+
+        // Final winner
+        const idx = getWinnerIndex();
+        const winner = idx >= 0 ? names[idx] : null;
+        if(winner){
+          lastWinner = winner;
+          lastWinnerEl.textContent = winner;
+
+          // Little final sound
+          beep(880, 120, "sine", 0.04);
+          setTimeout(() => beep(1320, 160, "sine", 0.04), 90);
+
+          showWinner(winner, idx);
+          if(removeWinnerToggle.checked){
+            names.splice(idx, 1);
+          }
+          syncUI();
+          drawWheel();
+        }
+      }
+    }
+
+    // ===== Confetti =====
+    const confettiCanvas = $("#confetti");
+    const cctx = confettiCanvas.getContext("2d");
+    let confetti = [];
+    let confettiRAF = 0;
+
+    function resizeConfetti(){
+      const dpr = window.devicePixelRatio || 1;
+      const rect = confettiCanvas.getBoundingClientRect();
+      confettiCanvas.width = Math.round(rect.width * dpr);
+      confettiCanvas.height = Math.round(rect.height * dpr);
+      cctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    function makeConfetti(){
+      confetti = [];
+      const rect = confettiCanvas.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+      const count = Math.round(clamp(W / 6, 90, 170));
+
+      const colors = [
+        "rgba(0,46,106,.95)",
+        "rgba(225,6,42,.95)",
+        "rgba(255,211,106,.95)",
+        "rgba(234,242,255,.95)"
+      ];
+
+      for(let i=0;i<count;i++){
+        confetti.push({
+          x: Math.random()*W,
+          y: -20 - Math.random()*H*0.4,
+          w: 6 + Math.random()*10,
+          h: 6 + Math.random()*14,
+          vy: 2 + Math.random()*4.5,
+          vx: -1.2 + Math.random()*2.4,
+          rot: Math.random()*Math.PI*2,
+          vr: -0.12 + Math.random()*0.24,
+          color: colors[i % colors.length],
+          shape: Math.random() < 0.22 ? "emoji" : "rect",
+          emoji: ["💰","🍀","🎉","💵","✨"][i % 5]
+        });
+      }
+    }
+
+    function drawConfetti(){
+      const rect = confettiCanvas.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+      cctx.clearRect(0,0,W,H);
+
+      for(const p of confetti){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        // wrap
+        if(p.y > H + 40){
+          p.y = -30 - Math.random()*60;
+          p.x = Math.random()*W;
+        }
+        if(p.x < -60) p.x = W + 60;
+        if(p.x > W + 60) p.x = -60;
+
+        cctx.save();
+        cctx.translate(p.x, p.y);
+        cctx.rotate(p.rot);
+
+        if(p.shape === "emoji"){
+          cctx.font = "18px system-ui";
+          cctx.textAlign = "center";
+          cctx.textBaseline = "middle";
+          cctx.fillText(p.emoji, 0, 0);
+        }else{
+          cctx.fillStyle = p.color;
+          cctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        }
+
+        cctx.restore();
+      }
+
+      confettiRAF = requestAnimationFrame(drawConfetti);
+    }
+
+    function startConfetti(){
+      cancelAnimationFrame(confettiRAF);
+      resizeConfetti();
+      makeConfetti();
+      drawConfetti();
+    }
+
+    function stopConfetti(){
+      cancelAnimationFrame(confettiRAF);
+      confettiRAF = 0;
+      const rect = confettiCanvas.getBoundingClientRect();
+      cctx.clearRect(0,0,rect.width,rect.height);
+    }
+
+    // ===== Winner modal =====
+    function showWinner(name, idx){
+      winnerNameEl.textContent = name;
+      const emoji = pickEmoji(idx);
+      winnerMetaEl.textContent = `${emoji} Parabéns, ${name}. Que a sorte continue girando e o prêmio venha forte.`;
+
+      overlay.classList.add("show");
+      startConfetti();
+    }
+
+    function closeWinner(){
+      overlay.classList.remove("show");
+      stopConfetti();
+    }
+
+    // ===== Sync UI =====
+    function syncUI(){
+      renderList();
+      spinBtn.disabled = names.length < 2 || spinning;
+      countLabel.textContent = `${names.length} ${names.length === 1 ? "nome" : "nomes"}`;
+      statCount.textContent = String(names.length);
+      lastWinnerEl.textContent = lastWinner || "Nenhum";
+    }
+
+    // ===== Actions =====
+    function addName(raw){
+      const n = normalizeName(raw);
+      if(!n) return;
+
+      // avoid duplicates (case-insensitive)
+      const exists = names.some(x => x.toLowerCase() === n.toLowerCase());
+      if(exists) {
+        beep(160, 120, "sine", 0.03);
+        return;
+      }
+
+      names.push(n);
+      beep(660, 70, "triangle", 0.02);
+      syncUI();
+      drawWheel();
+    }
+
+    addBtn.addEventListener("click", () => {
+      addName(nameInput.value);
+      nameInput.value = "";
+      nameInput.focus();
+    });
+
+    nameInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter"){
+        e.preventDefault();
+        addBtn.click();
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if(spinning) return;
+      names = [];
+      lastWinner = "Nenhum";
+      syncUI();
+      drawWheel();
+      beep(140, 120, "sine", 0.03);
+    });
+
+    shuffleBtn.addEventListener("click", () => {
+      if(spinning) return;
+      for(let i = names.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [names[i], names[j]] = [names[j], names[i]];
+      }
+      beep(540, 90, "triangle", 0.02);
+      syncUI();
+      drawWheel();
+    });
+
+    spinBtn.addEventListener("click", spin);
+    wheelCanvas.addEventListener("click", () => {
+      if(names.length >= 2) spin();
+    });
+
+    closeModalBtn.addEventListener("click", closeWinner);
+    overlay.addEventListener("click", (e) => {
+      if(e.target === overlay) closeWinner();
+    });
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && overlay.classList.contains("show")) closeWinner();
+    });
+
+    spinAgainBtn.addEventListener("click", () => {
+      closeWinner();
+      setTimeout(() => spin(), 140);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const text = winnerNameEl.textContent || "";
+      try{
+        await navigator.clipboard.writeText(text);
+        beep(820, 90, "sine", 0.03);
+        copyBtn.textContent = "Copiado ✅";
+        setTimeout(() => copyBtn.textContent = "Copiar nome 📋", 900);
+      }catch(e){
+        beep(180, 120, "sine", 0.03);
+      }
+    });
+
+    importDemoBtn.addEventListener("click", () => {
+      if(spinning) return;
+      const pasted = prompt("Cole vários nomes, um por linha:");
+      if(!pasted) return;
+      pasted.split(/\r?\n/).map(normalizeName).filter(Boolean).forEach(addName);
+      nameInput.focus();
+    });
+
+    // ===== Init =====
+    function init(){
+      syncUI();
+      drawWheel();
+      window.addEventListener("resize", () => {
+        drawWheel();
+        if(overlay.classList.contains("show")) resizeConfetti();
+      });
+    }
+    init();
+  </script>
+</body>
+</html>
