@@ -3,9 +3,8 @@
   "short_name": "Lulucap",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#061a3a",
   "theme_color": "#061a3a",
-  "orientation": "portrait-primary",
+  "background_color": "#061a3a",
   "icons": [
     {
       "src": "assets/logo-lulucap.png",
