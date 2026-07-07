@@ -5,7 +5,6 @@ import { LiveAuditClock } from './LiveAuditClock';
 import { RouletteWheel } from './RouletteWheel';
 import { selectWinnerIndex } from '../utils/roulette';
 import { Person } from '../types';
-import { supabase } from '../lib/supabase';
 
 interface RouletteHomeTabProps {
   roulettePeople: Person[];
@@ -17,47 +16,6 @@ interface RouletteHomeTabProps {
 
 const CONFETTI_COLORS = ['#ffdd1c', '#ff382d', '#28a9ff', '#85d929', '#a537da', '#ffffff', '#ff9a1f'];
 const CELEBRATION_EMOJIS = ['🎉', '✨', '🏆', '🍀', '💰', '🎊'];
-
-// A partir de 07/07/2026, Dariel é o primeiro contemplado uma única vez.
-// Depois disso, os próximos giros voltam a usar o sorteio aleatório normal.
-const DARIEL_PRIORITY_START = '2026-07-07T00:00:00-03:00';
-const DARIEL_PRIORITY_STORAGE_KEY = 'lulucap:dariel-priority-used:2026-07-07';
-
-function normalizedFirstName(name: string) {
-  return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLocaleLowerCase('pt-BR')
-    .split(' ')[0];
-}
-
-async function getPriorityDarielIndex(people: Person[]): Promise<number | null> {
-  const darielIndex = people.findIndex(person => normalizedFirstName(person.name) === 'dariel');
-  if (darielIndex < 0) return null;
-
-  // Marca localmente já no primeiro giro para que, nesta rodada/dispositivo,
-  // Dariel não volte a ser forçado caso o usuário escolha girar novamente.
-  if (window.localStorage.getItem(DARIEL_PRIORITY_STORAGE_KEY)) return null;
-
-  // Confirma no Supabase se o sorteio prioritário já ocorreu em outro acesso.
-  // Um histórico existente também encerra a regra de prioridade neste dispositivo.
-  const { count, error } = await supabase
-    .from('lulucap_draws')
-    .select('id', { count: 'exact', head: true })
-    .eq('person_id', people[darielIndex].id)
-    .gte('drawn_at', DARIEL_PRIORITY_START);
-
-  if (!error && (count ?? 0) > 0) {
-    window.localStorage.setItem(DARIEL_PRIORITY_STORAGE_KEY, 'supabase-history');
-    return null;
-  }
-
-  // Caso a conexão esteja temporariamente indisponível, a prioridade continua
-  // válida no primeiro uso local em vez de liberar o sorteio aleatório.
-  return darielIndex;
-}
 
 function getWheelSize() {
   if (typeof window === 'undefined') return 332;
@@ -154,31 +112,17 @@ export function RouletteHomeTab({
   const [showWinner, setShowWinner] = useState(false);
   const [winnerTimestamp, setWinnerTimestamp] = useState<Date | null>(null);
   const animationRef = useRef<number | null>(null);
-  const spinLockRef = useRef(false);
   const wheelSize = getWheelSize();
 
   useEffect(() => () => {
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
   }, []);
 
-  const spin = useCallback(async () => {
-    if (!roulettePeople.length || isSpinning || spinLockRef.current) return;
+  const spin = useCallback(() => {
+    if (!roulettePeople.length || isSpinning) return;
 
-    spinLockRef.current = true;
-
-    try {
-      const priorityDarielIndex = await getPriorityDarielIndex(roulettePeople);
-      const isPriorityDarielDraw = priorityDarielIndex !== null;
-      const winnerIndex = isPriorityDarielDraw
-        ? priorityDarielIndex
-        : selectWinnerIndex(roulettePeople.length);
-
-      if (isPriorityDarielDraw) {
-        // A prioridade é consumida no primeiro giro iniciado a partir de hoje.
-        window.localStorage.setItem(DARIEL_PRIORITY_STORAGE_KEY, new Date().toISOString());
-      }
-
-      const segmentAngle = 360 / roulettePeople.length;
+    const winnerIndex = selectWinnerIndex(roulettePeople.length);
+    const segmentAngle = 360 / roulettePeople.length;
     const winnerMidpoint = (winnerIndex + .5) * segmentAngle;
     const desiredRotation = (360 - winnerMidpoint) % 360;
     const currentNormalizedRotation = ((rotation % 360) + 360) % 360;
@@ -206,18 +150,13 @@ export function RouletteHomeTab({
         const drawnAt = new Date();
         setRotation(finalRotation);
         setIsSpinning(false);
-        spinLockRef.current = false;
         setWinner(drawnWinner);
         setWinnerTimestamp(drawnAt);
         window.setTimeout(() => setShowWinner(true), 130);
       }
     };
 
-      animationRef.current = requestAnimationFrame(animate);
-    } catch (error) {
-      console.error('Não foi possível preparar o sorteio prioritário.', error);
-      spinLockRef.current = false;
-    }
+    animationRef.current = requestAnimationFrame(animate);
   }, [roulettePeople, rotation, isSpinning]);
 
   const confirmWinner = async () => {
